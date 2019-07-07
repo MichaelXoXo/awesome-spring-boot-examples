@@ -10,15 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class HelloWorld {
-
-
+    @Value(value = "${author.name}")
+    private String authorName;
 
     @GetMapping("/hello")
-    public String sayHello(){
-        return "Hello World";
+    public String sayHello() {
+        return "Hello World By " + authorName;
     }
-
-
-
 
 }
