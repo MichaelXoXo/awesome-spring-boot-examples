@@ -1,11 +1,13 @@
 # awesome-spring-boot-examples
 
-开发工作中涉及到的 Spring Boot 技术栈，尽量每个示例简单专一
+Spring Boot 实战
+
+记录开发工作中涉及到的 Spring Boot 技术栈，尽量每个示例简单专一
 
 版本：
 
 - Spring Boot: `2.1.6.RELEASE`
-- JDKK： `1,8`
+- JDKK： `1.8`
 
 ## 项目使用
 
