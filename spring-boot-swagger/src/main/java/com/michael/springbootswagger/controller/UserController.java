@@ -62,7 +62,7 @@ public class UserController {
 
     @ApiOperation(value = "删除用户", notes = "根据用户id删除用户信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "用户id", paramType = "path")
+            @ApiImplicitParam(name = "id", value = "用户id", required = true, paramType = "path")
     })
     @RequestMapping(value = "/user/{id}", method = RequestMethod.DELETE)
     public int deleteUser(@PathVariable("id") int id) {
