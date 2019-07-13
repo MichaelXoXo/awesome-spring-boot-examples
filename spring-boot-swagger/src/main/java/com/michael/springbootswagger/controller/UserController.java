@@ -3,6 +3,7 @@ package com.michael.springbootswagger.controller;
 import com.michael.springbootswagger.model.UserEntity;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/")
-@Api(value = "用户模块", tags = {"api/v1"})
+@Api(value = "用户模块", tags = {"User"})
 public class UserController {
 
     // 模拟数据库
@@ -45,7 +46,7 @@ public class UserController {
     }
 
     @ApiOperation(value = "查询单用户", notes = "根据用户id 查询其信息")
-    @ApiImplicitParam(name = "id", value = "用户id", paramType = "query",dataType = "int",required = true)
+    @ApiImplicitParam(name = "id", value = "用户id", paramType = "query", required = true)
     @GetMapping("/user/{id}")
     public UserEntity getUser(@PathParam("id") int id) {
         UserEntity user = users.get(id);
@@ -60,7 +61,9 @@ public class UserController {
     }
 
     @ApiOperation(value = "删除用户", notes = "根据用户id删除用户信息")
-    @ApiImplicitParam(name = "id", value = "用户id", paramType = "path")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "用户id", paramType = "path")
+    })
     @RequestMapping(value = "/user/{id}", method = RequestMethod.DELETE)
     public int deleteUser(@PathVariable("id") int id) {
         users.remove(id);
