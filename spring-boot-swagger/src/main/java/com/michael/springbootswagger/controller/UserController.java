@@ -24,7 +24,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/v1/")
-@Api(value = "用户模块", tags = {"User"})
+@Api(tags = {"用户相关接口"}, value = "用户模块")
 public class UserController {
 
     // 模拟数据库
@@ -55,7 +55,8 @@ public class UserController {
 
     @ApiOperation(value = "存储用户信息", notes = "存储用户详细信息")
     @RequestMapping(value = "/user", method = RequestMethod.POST)
-    public UserEntity saveUser(@RequestBody UserEntity user) {
+    public UserEntity saveUser(@ApiParam(value = "用户信息", required = true)
+                               @RequestBody UserEntity user) {
         users.add(user);
         return user;
     }
