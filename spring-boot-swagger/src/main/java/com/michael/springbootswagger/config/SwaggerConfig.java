@@ -6,17 +6,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.builders.ResponseMessageBuilder;
 import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
+import springfox.documentation.service.Parameter;
 import springfox.documentation.service.ResponseMessage;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static springfox.documentation.builders.PathSelectors.regex;
@@ -43,11 +46,17 @@ public class SwaggerConfig {
                 .title("标题: Spring Boot 项目集成 Swagger 示例文档")
                 .description("描述: 我的博客地址是 https://michael728.github.io")
                 .termsOfServiceUrl("https://michael728.github.io/")
-                .contact(new Contact("Michael 翔","https://michael728.github.io","649168982@qq.com"))
+                .contact(new Contact("Michael 翔", "https://michael728.github.io", "649168982@qq.com"))
                 .version("1.0.0")
                 .license("Apache 2.0")
                 .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
                 .build();
+
+        ParameterBuilder tokenPar = new ParameterBuilder();
+        List<Parameter> pars = new ArrayList<Parameter>();
+        tokenPar.name("token").description("令牌")
+                .modelRef(new ModelRef("string")).parameterType("query").required(false).build();
+        pars.add(tokenPar.build());
 
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .apiInfo(apiInfo)
@@ -57,7 +66,8 @@ public class SwaggerConfig {
                 .paths(regex("/api/.*"))
                 //.apis(RequestHandlerSelectors.basePackage("com.michael.springbootswagger.controller"))
                 .build()
-                .useDefaultResponseMessages(false);
+                .useDefaultResponseMessages(false)
+                .globalOperationParameters(pars);
         return docket;
     }
 }
