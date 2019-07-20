@@ -18,3 +18,4 @@ Spring Boot 实战
 
 - [spring-boot-hello-world](https://github.com/Michael728/awesome-spring-boot-examples/tree/master/spring-boot-hello-world) 一个简单的 spring boot 示例，返回 `hello world`,教程文章[Spring Boot 实战 —— 入门](https://michael728.github.io/2019/07/07/spring-boot-hello-world/)
 - [spring-boot-swagger](https://github.com/Michael728/awesome-spring-boot-examples/tree/master/spring-boot-swagger) 教程文章[Spring Boot 集成 Swagger 生成 RESTful API 文档](https://michael728.github.io/2019/07/14/java-spring-boot-swagger/)
+- [spring-boot-mybatis](https://github.com/Michael728/awesome-spring-boot-examples/tree/master/spring-boot-mybatis) 教程文章[](https://michael728.github.io/2019/07/20/java-spring-boot-mybatis/)
