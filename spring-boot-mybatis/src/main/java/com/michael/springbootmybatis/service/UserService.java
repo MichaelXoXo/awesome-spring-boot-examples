@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.michael.springbootmybatis.mapper.UserMapper;
 import com.michael.springbootmybatis.model.UserEntity;
+import com.michael.springbootmybatis.util.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
@@ -23,7 +24,7 @@ public interface UserService {
      *
      * @return
      */
-    PageInfo<UserEntity> getAll(int pageNum, int pageSize);
+    PageResult getAll(int pageNum, int pageSize);
 
     /**
      * 根据用户 ID 查询用户
@@ -31,7 +32,7 @@ public interface UserService {
      * @param id 用户 ID
      * @return
      */
-    UserEntity getUserById(Long id);
+    PageResult getUserById(int pageNum, int pageSize, List<String> id);
 
     /**
      * 新增一个用户

@@ -15,8 +15,8 @@ import java.io.Serializable;
 @ApiModel(description = "UserEntity 实体类")
 public class UserEntity implements Serializable {
     private static final long serialVersionUID = 1L;
-    @ApiModelProperty(value = "用户 id", dataType = "Long")
-    private Long id;
+    @ApiModelProperty(value = "用户 id", dataType = "Integer")
+    private Integer id;
     @ApiModelProperty(value = "用户名", required = true)
     private String userName;
     @ApiModelProperty(value = "密码")

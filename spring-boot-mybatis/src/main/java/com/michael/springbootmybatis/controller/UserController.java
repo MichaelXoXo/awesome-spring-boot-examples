@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.michael.springbootmybatis.model.UserEntity;
 import com.michael.springbootmybatis.service.UserService;
+import com.michael.springbootmybatis.util.PageResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,23 +41,26 @@ public class UserController {
      */
     @ApiOperation(value = "获取用户列表", notes = "获取全部用户信息")
     @RequestMapping(value = "/users", method = RequestMethod.GET)
-    public PageInfo<UserEntity> getUsers(
+    public Object getUsers(
             @RequestParam(name = "pageNum", defaultValue = "1", required = false) int pageNum,
             @RequestParam(name = "pageSize", defaultValue = "2", required = false) int pageSize) {
         return userService.getAll(pageNum, pageSize);
     }
 
+
     /**
      * 根据用户 ID 查询用户
      *
-     * @param id
      * @return
      */
-    @ApiOperation(value = "查询单用户", notes = "根据用户id 查询其信息")
-    @ApiImplicitParam(name = "id", value = "用户id", paramType = "query", required = true)
-    @GetMapping("/user/{id}")
-    public UserEntity getUser(Long id) {
-        UserEntity user = userService.getUserById(id);
+    @ApiOperation(value = "查询指定 ID 的用户", notes = "根据用户 id 列表查询其信息")
+    @ApiImplicitParam(name = "ids", value = "用户 id 列表", paramType = "path", required = true)
+    @GetMapping(value = "/user/{ids}")
+    public PageResult getUser(@RequestParam(name = "pageNum", defaultValue = "1", required = false) int pageNum,
+                              @RequestParam(name = "pageSize", defaultValue = "2", required = false) int pageSize,
+                              @PathVariable String ids) {
+        List<String> idLst = Arrays.asList(ids.split(","));
+        PageResult user = userService.getUserById(pageNum, pageSize, idLst);
         return user;
     }
 
@@ -66,8 +71,9 @@ public class UserController {
      */
     @ApiOperation(value = "存储用户信息", notes = "存储用户详细信息")
     @RequestMapping(value = "/user", method = RequestMethod.POST)
-    public void save(UserEntity user) {
+    public String save(UserEntity user) {
         userService.insert(user);
+        return "Create success, user id: " + user.getId();
     }
 
     /**
