@@ -1,3 +1,6 @@
+CREATE SCHEMA `beta` DEFAULT CHARACTER SET utf8mb4 ;
+use beta;
+
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
