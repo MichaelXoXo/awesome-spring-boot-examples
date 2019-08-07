@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    status : 这个用于设置log4j2自身内部的信息输出,可以不设置,当设置成trace时,会看到log4j2内部各种详细输出
+    monitorInterval : 设置间隔秒数。此处表示每隔30秒重读一次配置文件
+-->
+
+<!--TRACE < DEBUG < INFO < WARN < ERROR < FATAL < OFF-->
+<Configuration status="OFF" monitorInterval="30">
+
+    <!-- 定义一些变量值，可供下面配置使用，例如日志存储目录等 -->
+    <Properties>
+        <Property name="APP_NAME">logs-demo</Property>
+        <Property name="LOG_HOME">logs</Property>
+        <Property name="SPLIT_SIZE">20 MB</Property>
+    </Properties>
+
+    <!-- 定义appender -->
+    <!-- Appenders 标签，其实就是输出，有各种扩展组件 -->
+    <Appenders>
+
+        <!-- 输出控制台日志的配置 -->
+        <!-- ConsoleAppender 输出结果到控制台 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- ThresholdFilter ：过滤器 -->
+            <!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch）-->
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!-- 输出日志的格式 -->
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} %L %M - %msg%xEx%n"/>
+        </Console>
+
+        <!-- 适合临时测试用 -->
+        <!-- FileAppender  输出结果到指定文件 -->
+        <!-- 这个appender用来调试，append为false的属性，每次运行都会清空上次的日志，查起来也方便，这个和输出到控制台就一个效果了 -->
+        <File name="Test" fileName="${LOG_HOME}/test.log" append="false">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} %L %M - %msg%xEx%n"/>
+        </File>
+
+        <!-- RollingRandomAccessFile 即表示以文件方式记录 -->
+        <!-- 打印出所有的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档 -->
+        <!-- filePattern： 历史日志封存路径。表示当日志到达指定的大小或者时间，产生新日志时，旧日志的命名路径。注意后缀，log4j2自动识别zip等后缀，表示历史日志需要压缩 -->
+
+        <!-- 以 年-月 创建文件夹，每天滚动一次，每个文件最大20M，最多保存50个文件-->
+        <RollingRandomAccessFile name="InfoLog" fileName="${LOG_HOME}/${APP_NAME}-info.log" filePattern="${LOG_HOME}/$${date:yyyy-MM}/${APP_NAME}-info-%d{yyyy-MM-dd}-%i.log.zip" immediateFlush="true" append="true">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss z} [%t] %-5level %logger{36} %L %M - %msg%xEx%n"/>
+            <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <!-- 每天生成一个日志文件 -->
+                <!-- TimeBasedTriggeringPolicy 基于时间的触发策略。该策略主要是完成周期性的log文件封存工作。有两个参数：
+                interval，integer型，指定两次封存动作之间的时间间隔。
+                单位:以日志的命名精度来确定单位，比如yyyy-MM-dd-HH 单位为小时，yyyy-MM-dd-HH-mm 单位为分钟 -->
+                <!-- 关键点在于filePattern后的日期格式，以及TimeBasedTriggeringPolicy的interval，日期格式精确到哪一位，interval也精确到哪一个单位  -->
+                <!-- modulate=true，则封存时间将以0点为边界进行偏移计算 -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <!-- SizeBasedTriggeringPolicy（表示单个文件最大多少容量）结合在一起，非常有用-->
+                <!-- 每到 ${SPLIT_SIZE} 体积，生成日志文件 -->
+                <SizeBasedTriggeringPolicy size="${SPLIT_SIZE}"/>
+            </Policies>
+            <!-- DefaultRolloverStrategy max="50"表示压缩包，最多保留50个,超过了会覆盖之前的 -->
+            <DefaultRolloverStrategy max="50"/>
+        </RollingRandomAccessFile>
+
+        <!-- 以 年-月 创建文件夹，每天滚动一次，每个文件最大 20 M，最多保存50个文件-->
+        <RollingRandomAccessFile name="WarnLog" fileName="${LOG_HOME}/${APP_NAME}-warn.log" filePattern="${LOG_HOME}/$${date:yyyy-MM}/${APP_NAME}-warn-%d{yyyy-MM-dd}-%i.log.gz" immediateFlush="true" append="true">
+            <!-- 添加过滤器ThresholdFilter,可以有选择的输出某个级别以上的类别 onMatch="ACCEPT" onMismatch="DENY"意思是匹配就接受,否则直接拒绝  -->
+            <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss z} [%t] %-5level %class{36} %L %M - %msg%xEx%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${SPLIT_SIZE}"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20" />
+        </RollingRandomAccessFile>
+
+        <!-- 以 年-月 创建文件夹，每 8小时 滚动一次，每个文件最大 20 M，最多保存50个文件-->
+        <!-- interval 的时间单位，并不是固定的，而是以 filePattern 中，时间的最小粒度 -->
+        <RollingFile name="ErrorLog" fileName="${LOG_HOME}/${APP_NAME}-error.log" filePattern="${LOG_HOME}/$${date:yyyy-MM}/${APP_NAME}-error-%d{yyyy-MM-dd-HH}-%i.log" immediateFlush="true" append="true">
+            <PatternLayout pattern="%d{yyyy-MM-dd 'at' HH:mm:ss z} [%t] %-5level %logger{36} %L %M - %msg%xEx%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="8" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="${SPLIT_SIZE}"/>
+            </Policies>
+            <Filters>
+                <!-- 只记录error级别信息 -->
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <!-- 最大保存文件数，超过了会覆盖之前的 -->
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+    </Appenders>
+
+    <!--定义logger，只有定义了logger并引入的appender，appender才会生效-->
+    <!-- loggers标签，用于定义logger的level和所采用的appender，其中appender-ref必须为先前定义的appenders的名称 -->
+    <Loggers>
+
+        <!-- root logger 配置,全局配置，默认所有的Logger都继承此配置 -->
+        <!-- All < Trace < Debug < Info < Warn < Error < Fatal < OFF. -->
+        <!-- 为log的默认输出形式，如果一个类的log没有在loggers中明确指定其输出level与格式，那么就会采用root中定义的格式 -->
+        <!-- level默认为error -->
+        <Root level="INFO" includeLocation="true">
+            <!-- 这里引用了Appenders标签中的name值 -->
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="InfoLog"/>
+            <AppenderRef ref="WarnLog"/>
+            <AppenderRef ref="ErrorLog"/>
+            <AppenderRef ref="Test"/>
+        </Root>
+
+        <!--第三方的软件日志级别 -->
+        <!-- 用来单独指定日志的形式，比如要为指定包下的class指定不同的日志级别等。 -->
+        <!-- additivity="false" 表示不继承 root 的设置，默认是 true。这里注意一下,改成false，root logger就不会再起作用。-->
+        <!--
+            限制Spring框架日志的输出级别，其它框架类似配置
+            或者使用 AppenderRef 标签，将其输出到指定文件中，记得加上 additivity="false"
+        -->
+        <logger name="org.springframework" level="WARN" additivity="false">
+            <AppenderRef ref="InfoLog"/>
+        </logger>
+
+        <!-- <logger name="com.michael.mybatisdemo" level="INFO" additivity="true">
+            <AppenderRef ref="InfoLog"/>
+        </logger> -->
+
+        <!-- 如果你的logger中也有日志级别的配置，如果级别都在error以上，你的appender里面也就不会输出erro以下的信息了 -->
+        <Logger name="org.apache" level="ERROR" additivity="false"/>
+
+    </Loggers>
+
+</Configuration>
