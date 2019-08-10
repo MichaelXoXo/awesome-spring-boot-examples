@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- application.properities中配置的变量 -->
+    <springProperty scope="context" name="logProfile" source="log.profile"/>
+    <springProperty scope="context" name="logFileLevel" source="log.file.level"/>
+    <!-- 定义日志 pattern -->
+    <property name="logPattern"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %c - %L{4} - %msg%n"/>
+    <!-- 设置变量 -->
+    <property name="appName" value="logback-demo"></property>
+    <property name="logPath" value="log"></property>
+
+
+    <!-- ch.qos.logback.core.ConsoleAppender 表示控制台输出 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <!--
+        日志输出格式：
+            %d表示日期时间，
+            %thread表示线程名，
+            %-5level：级别从左显示5个字符宽度
+            %logger{50} 表示logger名字最长50个字符，否则按照句点分割。
+            %L 表示行号
+            %msg：日志消息，
+            %n是换行符
+        -->
+        <encoder>
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>-->
+            <pattern>${logPattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 滚动记录文件，先将日志记录到指定文件，当符合某个条件时，将日志记录到其他文件 -->
+    <appender name="appLogFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${logPattern}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--
+            滚动时产生的文件的存放位置及文件名称 %d{yyyy-MM-dd}：按天进行日志滚动
+            %i：当文件大小超过maxFileSize时，按照i进行文件滚动
+            -->
+            <fileNamePattern>${logPath}/${appName}/%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+
+            <!--
+            当日志文件超过maxFileSize指定的大小是，根据上面提到的%i进行日志文件滚动 注意此处配置SizeBasedTriggeringPolicy是无法实现按文件大小进行滚动的，必须配置timeBasedFileNamingAndTriggeringPolicy
+            -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+
+            <!--可选节点，控制保留的归档文件的最大数量，超出数量就删除旧文件。假设设置每天滚动，-->
+            <!--且maxHistory是365，则只保存最近365天的文件，删除之前的旧文件。注意，删除旧文件是，-->
+            <!--那些为了归档而创建的目录也会被删除-->
+            <MaxHistory>100</MaxHistory>
+        </rollingPolicy>
+        <!--下面通过两个 Filter，记录了 WARN 和 Error 级别的日志，其实用 logger 来定义level，更方便-->
+        <!--<filter class="ch.qos.logback.classic.filter.LevelFilter">-->
+        <!--<level>warn</level>-->
+        <!--<onMatch>ACCEPT</onMatch>-->
+        <!--<onMismatch>NEUTRAL</onMismatch>-->
+        <!--</filter>-->
+        <!--<filter class="ch.qos.logback.classic.filter.LevelFilter">-->
+        <!--<level>error</level>-->
+        <!--<onMatch>ACCEPT</onMatch>-->
+        <!--<onMismatch>DENY</onMismatch>-->
+        <!--</filter>-->
+    </appender>
+
+
+    <!--下面几行注释，是因为采用了 springProfile 方法，各个环境复用配置文件-->
+    <!--<root level="error">-->
+    <!--<appender-ref ref="console"/>-->
+    <!--</root>-->
+    <!--<logger name="com.michael.springbootlogback" >-->
+    <!--<appender-ref ref="appLogFileAppender"/>-->
+    <!--</logger>-->
+
+
+    <!--多环境日志输出-->
+    <!--下面的设置，会根据 logProfile 的值，也就是当前所处环境的值，决定日志级别-->
+    <springProfile name="${logProfile}">
+        <!--<logger name="org.springframework" level="info" additivity="false"></logger>-->
+        <logger name="com.michael" level="info">
+            <appender-ref ref="console"/>
+        </logger>
+        <logger name="com.michael" level="${logFileLevel}">
+            <appender-ref ref="appLogFileAppender"/>
+        </logger>
+    </springProfile>
+
+
+</configuration>
